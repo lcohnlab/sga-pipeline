@@ -44,7 +44,7 @@ function sga_template_proc(dir, out;
     #filter sequences by minimum agreement and 
     for f in files 
     	seqname,seq = read_fasta_with_descriptors_in_names(f)
-    	filename = replace.(seqname[1], r" num_CCS.*" => "")
+    	filename = replace.(seqname[1], r" .*" => "")
     	min_ag = replace.(seqname[1], r".*min_agreement=" => "")
     	min_ag = parse.(Float64, min_ag) #convert to number
     	if min_ag >= agreement_thresh
