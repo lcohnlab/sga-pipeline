@@ -14,8 +14,6 @@ maintained by Hugh Murrell.
 
 now upgraded to Julia version 1.10.5
 
-## branch master 
-
 ## Quick start
 
 
