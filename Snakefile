@@ -16,6 +16,8 @@ index_type = "Index_primer" # default "Index_Primer", also accepts "Nextera_prim
 error_rate = 0.01    		# default 0.01
 min_length = 2000    		# default 2100
 max_length = 6000    		# default 4000
+max_reads = 200       		# default 200 reads per sample,
+                         	# use something large for no downsampling
 # consensus
 min_reads = 5				# default 5
 # contam
@@ -45,6 +47,7 @@ rule demux:
         error_rate = error_rate,
         min_length = min_length,
         max_length = max_length,
+        max_reads = max_reads,
         min_reads = min_reads,
         index_type = index_type,
         config = lambda wc: config[wc.dataset]
