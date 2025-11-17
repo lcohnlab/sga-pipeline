@@ -1,25 +1,19 @@
-2025-04_FH34_bc1002_10ktotal:
-  V807_271304_206_REN_pbsga1:
-    fwd_index: S5_A3
+Dataset1:
+  Sample1:
+    fwd_index: Index_F21
     index_type: Index_primer
-    rev_index: N7_A3
-    rev_primer: GTCATTGGTCTTAAAGGTACCTG
-    sec_str_primer: GGMAGCATCCAGGAAGTCARCCTA
-  V807_227220_214_REN_pbsga1:
-    fwd_index: S5_B14
+    rev_index: Index_R02
+    rev_primer: CAAGGCAAGCTTTATTGAGGCTTAAS
+    sec_str_primer: GATTGTGTGGCARGTAGACAGRATG
+  Sample2:
+    fwd_index: Index_F22
     index_type: Index_primer
-    rev_index: N7_B14
-    rev_primer: GTACCTGAGGTCTGACTGGRAAAC
-    sec_str_primer: GGMAGCATCCAGGAAGTCARCCTA
-  V807_271304_208_REN_pbsga1:
-    fwd_index: S5_B15
+    rev_index: Index_R02
+    rev_primer: CAAGGCAAGCTTTATTGAGGCTTAAS
+    sec_str_primer: GATTGTGTGGCARGTAGACAGRATG
+  Sample3:
+    fwd_index: Index_F23
     index_type: Index_primer
-    rev_index: N7_B15
-    rev_primer: GTCATTGGTCTTAAAGGTACCTG
-    sec_str_primer: GGMAGCATCCAGGAAGTCARCCTA
-  V807_227220_212_REN_pbsga1:
-    fwd_index: S5_B16
-    index_type: Index_primer
-    rev_index: N7_B16
-    rev_primer: GTCATTGGTCTTAAAGGTACCTG
-    sec_str_primer: GGMAGCATCCAGGAAGTCARCCTA
+    rev_index: Index_R02
+    rev_primer: CAAGGCAAGCTTTATTGAGGCTTAAS
+    sec_str_primer: GATTGTGTGGCARGTAGACAGRATG
