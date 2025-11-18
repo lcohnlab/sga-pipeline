@@ -145,7 +145,7 @@ for path in filepaths
     end
 end
 
-CSV.write("$(snakemake.output[3])", df_demux)
+CSV.write("$(snakemake.output[3])", df_demux_sampled)
 CSV.write("$(snakemake.output[4])", df_reject)
 
 # save a quality_filter report
