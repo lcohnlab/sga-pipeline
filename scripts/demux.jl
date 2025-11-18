@@ -8,25 +8,6 @@ using PorpidPostproc, NextGenSeqUtils, StatsBase
 using BioSequences, FASTX
 using DataFrames, CSV
 using CodecZlib: GzipDecompressorStream
-# include("../../src/postproc_functions.jl")
-
-# function NextGenSeqUtils.write_fastq(filename, seqs, phreds::Vector{Vector{Phred}};
-#                      names=String[], LongSequence = false,
-#                      append = false)
-#     if !LongSequence
-#         seqs = [LongCharSeq(s) for s in seqs]
-#     end
-#     stream = open(FASTQ.Writer, filename, append=append)
-#     i = 0
-#     if length(names) != length(seqs)
-#         names = [string("seq_", i) for i in 1:length(seqs)]
-#     end
-#     for (s, q, n) in zip(seqs, phreds, names)
-#         i += 1
-#         write(stream, FASTQ.Record(n, s, q))
-#     end
-#     close(stream)
-# end
 
 println("using Julia version: $(VERSION)")
 
@@ -79,9 +60,7 @@ df_demux = DataFrame(Sample = [], Count = [])
 for s in samples #add samples to df
 	push!(df_demux,[s,0])
 end
-#df_demux = DataFrame(Sample = [], Count = [])
 df_reject = DataFrame(Sample = [], Count = [])
-#println("demuxed reads => $(demuxed_reads)")
 for path in filepaths
     stream = open(FASTQ.Reader, path)
     count = 0
@@ -112,6 +91,60 @@ println("total rejected => $(no_rejected)")
 println("")
 println("If read counts are lower than expected check that min and max read lengths match amplicon size")
 println("")
+
+# down sample reads to specified max
+df_demux_sampled = DataFrame(Sample = [], Count = [], Sampled = [])
+max_reads = snakemake.params["max_reads"]
+if max_reads < 1
+    max_reads = 10000000
+end
+println("downsampling to about $(max_reads) reads")
+global no_lost=0
+global no_retained=0
+for path in filepaths
+    out_path = path[1:end-9]*"_sampled.fastq.gz"
+    if ! occursin("REJECT",path)
+        if endswith(path, ".gz")
+            stream = FASTQ.Reader(GzipDecompressorStream(open(path)))
+            out_stream = FASTQ.Writer(GzipCompressorStream(open(out_path,"w")))
+        else
+            stream = FASTQ.Reader(open(path))
+            out_stream = FASTQ.Writer(open(out_path,"w"))
+        end
+        sample_name = replace( replace( basename(path), ".gz" => "" ), ".fastq" => "" )
+        count = 0
+        sampled=0
+        ac = df_demux[df_demux.Sample .== sample_name, :Count][1]
+        sp = 1.0
+        ac > 0 ? sp = min(1.0, max_reads / ac) : sp = 1.0
+        if sp < 1.0
+            for record in stream
+                count += 1
+                if rand() < sp
+                    write(out_stream, record)
+                    sampled += 1
+                    global no_retained += 1
+                else
+                    global no_lost += 1
+                end
+            end
+            close(stream)
+            close(out_stream)
+            println("$(sample_name), sampled $(sampled) reads")
+            rm(path)
+            mv(out_path,path)
+            push!(df_demux_sampled,[sample_name,count,sampled])
+        else
+            close(stream)
+            close(out_stream)
+            println("$(sample_name), retained all $(ac) reads")
+            global no_retained += ac
+            rm(out_path)
+            push!(df_demux_sampled,[sample_name,ac,ac])
+        end
+    end
+end
+
 CSV.write("$(snakemake.output[3])", df_demux)
 CSV.write("$(snakemake.output[4])", df_reject)
 
@@ -124,4 +157,5 @@ push!(df_qual,["Number assigned by demux",no_assigned])
 CSV.write("$(snakemake.output[2])", df_qual)
 
 t2 = time()
+println("")
 println("Quality filtering and demultiplexing took $(t2 - t1) seconds.")
