@@ -41,16 +41,17 @@ function sga_template_proc(dir, out;
         exit()
     end
     
-    #filter sequences by minimum agreement and 
+    #filter sequences by minimum agreement  
     for f in files 
-    	seqname,seq = read_fasta_with_descriptors_in_names(f)
-    	filename = replace.(seqname[1], r" .*" => "")
+    	seqname,seq = read_fasta_with_descriptors_in_names(f) #some update broke this and sequence names became duplicated, see fix below
+    	seqname2 = [split(seqname[1], " "; limit=2)[2]] #remove duplication of sequence name  
+		filename = replace.(seqname[1], r" .*" => "")
     	min_ag = replace.(seqname[1], r".*min_agreement=" => "")
     	min_ag = parse.(Float64, min_ag) #convert to number
     	if min_ag >= agreement_thresh
-    		write_fasta(passed*"$(filename).fasta", seq, names = seqname)
+    		write_fasta(passed*"$(filename).fasta", seq, names = seqname2)
     	else
-    		write_fasta(failed*"$(filename).fasta", seq, names = seqname)
+    		write_fasta(failed*"$(filename).fasta", seq, names = seqname2)
     	end		
     end
 end
