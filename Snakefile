@@ -16,7 +16,7 @@ index_type = "Index_primer" # default "Index_Primer", also accepts "Nextera_prim
 error_rate = 0.01    		# default 0.01
 min_length = 2000    		# default 2100
 max_length = 6000    		# default 4000
-max_reads = 200       		# default 200 reads per sample,
+max_reads = 1000       		# default 1000 reads per sample,
                          	# use something large for no downsampling
 # consensus
 min_reads = 5				# default 5
@@ -26,7 +26,8 @@ proportion_thresh = 0.2  	# default 0.2
 dist_thresh = 0.015      	# default 0.015
 # postproc
 agreement_thresh = 0.7   	# default 0.7
-max_alignment_reads = 1000   # default 1000 
+max_alignment_reads = 1100  # default 1100
+                            # be sure value is ~10% larger than max_reads to avoid conflicts
 
 rule all:
     input:
