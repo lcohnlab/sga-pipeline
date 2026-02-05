@@ -7,11 +7,6 @@ ENV["MPLBACKEND"] = "Agg"
 using PorpidPostproc, CSV, NextGenSeqUtils, BioSequences, DataFrames, DataFramesMeta
 
 
-# include("../../src/functions.jl")
-# include("../../src/molev_functions.jl")
-# include("../../src/postproc_functions.jl")
-
-
 dir = snakemake.input[1]
 fastq_dir = snakemake.input[2]
 out = snakemake.output[1]
@@ -22,6 +17,7 @@ all_seqs = dir*"/$(dataset).fasta"
 
 passed = out*"/passed_$(agreement_thresh)_agreement/"
 failed = out*"/below_$(agreement_thresh)_agreement/"
+to_replace = "filtered/below_$(agreement_thresh)_agreement"
 
 """
 function that performs minimum agreement filtering of SGA sequences
@@ -66,13 +62,13 @@ end
 function that creates alignments for all samples that fail min agreement filtering
 alignments are only created for samples with fewer than the max_alignment_reads value to prevent extremely long runtimes for samples with many reads
 """
-function alignment_for_failed_filter(fasta_dir, fastq_dir; max_alignment_reads = 1000)
+function alignment_for_failed_filter(fasta_dir, fastq_dir; max_alignment_reads = 1000, agreement_thresh=0.7)
     fasta_files = [fasta_dir*f for f in readdir(fasta_dir) if f[end-5:end] == ".fasta"]
     if length(fasta_files) > 0
         println("Creating alignments from samples below minimum agreement threshold and with fewer than $(max_alignment_reads) reads...")
         println("")
     end
-    fastq_files = replace.(fasta_files, r"filtered/below_0.7_agreement" => "demux") #modify file names to read the demux fastq files
+    fastq_files = replace.(fasta_files, to_replace => "demux") #modify file names to read the demux fastq files
     fastq_files = replace.(fastq_files, r"fasta" => "fastq")
     
     t1 = time()
@@ -85,13 +81,13 @@ function alignment_for_failed_filter(fasta_dir, fastq_dir; max_alignment_reads =
     	if length(seqs) < max_alignment_reads
     		aligned_seqs = mafft_align(seqs)
     		filename = replace(f, r".fastq" => "_alignment.fasta") 
-    		filename = replace(filename, r"demux" => "filtered/below_0.7_agreement/alignments") #change filename back to the filtered directory
+    		filename = replace(filename, r"demux" => "filtered/below_$(agreement_thresh)_agreement/alignments") #change filename back to the filtered directory
     		write_fasta(filename, aligned_seqs, names = seq_names)
     		t4 = time()
-    		#println("$(t4 - t3) seconds.")
+    		println(" -alignment took $(t4 - t3) seconds.")
     	else println("$(sample) has more than the maximum number of allowed reads ($(max_alignment_reads)), no alignment will be created. This value can be adjusted in the snakefile.")
     		filename2 = replace(f, r".fastq" => ".fasta") 
-    		filename2 = replace(filename2, r"demux" => "filtered/below_0.7_agreement/alignments") #change filename back to the filtered directory
+    		filename2 = replace(filename2, r"demux" => "filtered/below_$(agreement_thresh)_agreement/alignments") #change filename back to the filtered directory
     		write_fasta(filename2, seqs, names = seq_names)
     	end	
     end
@@ -111,4 +107,4 @@ mkpath(failed*"/alignments")
 sga_template_proc(dir, out, agreement_thresh=agreement_thresh)
 
 #create alignments for all sequences below min agreement threshold
-alignment_for_failed_filter(failed,fastq_dir, max_alignment_reads = max_alignment_reads)
+alignment_for_failed_filter(failed,fastq_dir, max_alignment_reads = max_alignment_reads, agreement_thresh=agreement_thresh)
