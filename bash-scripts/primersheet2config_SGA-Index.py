@@ -33,7 +33,7 @@ def create_config(input_csv_fhs):
 
         config[os.path.basename(input_csv).split('.')[0]] = dataset
     sys.stdout.write(yaml.dump(config))
-
+	
 	filename = os.path.basename(input_csv).split('.')[0] + '-config.yaml'
     with open(filename, 'w') as file:
        doc = yaml.dump(config, file)
