@@ -23,7 +23,7 @@ def create_config(input_csv_fhs):
             fwd_index = df2.iloc[row]["fwd_index"]
             rev_index = df2.iloc[row]["rev_index"]
 									
-            dataset[df2.iloc[row]["Sample"]] = {
+            dataset[df2.iloc[row]["Sequence_Name"]] = {
                 "sec_str_primer": sec_str_primer,
                 "index_type": Index,
                 "fwd_index": fwd_index,
@@ -33,5 +33,12 @@ def create_config(input_csv_fhs):
 
         config[os.path.basename(input_csv).split('.')[0]] = dataset
     sys.stdout.write(yaml.dump(config))
+
+	filename = os.path.basename(input_csv).split('.')[0] + '-config.yaml'
+    with open(filename, 'w') as file:
+       doc = yaml.dump(config, file)
+    sys.stdout.write('creating yaml file, check that dataset name matches fastq file\n')
+    new_path = "../" + filename
+    os.replace(filename, new_path)
 
 create_config(sys.argv[1:])
