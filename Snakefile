@@ -25,7 +25,7 @@ cluster_thresh = 0.015   	# default 0.015
 proportion_thresh = 0.2  	# default 0.2
 dist_thresh = 0.015      	# default 0.015
 # postproc
-agreement_thresh = 0.7   	# default 0.7
+agreement_thresh = 0.7   	# default 0.7 for PacBio reads, 0.65 for Nanopore reads
 max_alignment_reads = 1100  # default 1100
                             # be sure value is ~10% larger than max_reads to avoid conflicts
 
